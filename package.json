@@ -15,7 +15,7 @@
     "lint": "prettier --check cmd/ ; eslint cmd/",
     "lint:fix": "prettier --write cmd/ ; eslint --fix cmd/",
     "build": "esbuild cmd/index.ts --bundle --outfile=cpa.tmp --platform=node && echo '#!/usr/bin/env node\n' | cat - cpa.tmp > cpa && rm cpa.tmp",
-    "npm-publish": "npm run build && cd build && npm publish && cd .."
+    "npm-publish": "npm run build && npm publish --access public"
   },
   "jest": {
     "preset": "ts-jest",
