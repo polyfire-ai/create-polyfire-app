@@ -18,7 +18,7 @@
 - **`--template <template>`**: Specifies the template to use for the project. Available templates can be listed using the `list` command.
 - **`--project <project>`**: Your project alias (get one on app.polyfire.com).
 - **`--botname <botname>`**: Names the bot (applicable only for chat templates).
-- ** `--auto-start`**: If this option is passed, the project will be automatically launched at the end of the installation.
+- **`--auto-start`**: If this option is passed, the project will be automatically launched at the end of the installation.
 
 ### Additional Commands
 
