@@ -1,6 +1,11 @@
 import inquirer, { InputQuestion, ListQuestion } from "inquirer";
 import { Template, TEMPLATE_DETAILS } from "..";
-import { cloneRepository, createEnvironmentFile, cleanOptions } from "../utils";
+import {
+  cloneRepository,
+  createEnvironmentFile,
+  cleanOptions,
+  installProject,
+} from "../utils";
 
 export type CustomQuestion = InputQuestion | ListQuestion;
 
@@ -17,7 +22,8 @@ export default async function createApplication(
   template: Template,
   appName: string,
   cliOptions: Record<string, string>,
-  additionalPrompts: CustomQuestion[]
+  additionalPrompts: CustomQuestion[],
+  autoStart?: boolean
 ): Promise<boolean> {
   const standardPrompts: CustomQuestion[] = [
     {
@@ -51,9 +57,11 @@ export default async function createApplication(
       templateConfig.envVariablePrefix
     );
 
-    console.info(
-      `Application setup complete! To get started, run:\n\n  cd ${appName};\n  npm install;\n  npm run dev;\n`
-    );
+    await installProject(appName, autoStart);
+
+    if (!autoStart) {
+      console.info("\nYour project is ready!");
+    }
   } catch (error: unknown) {
     console.error(
       "An error occurred:",

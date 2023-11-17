@@ -11,14 +11,27 @@ type TemplateName = `${
   | ProjectType.CHAT
   | ProjectType.AGENT}-${string}${string}`;
 
-const CHAT_REACT_VITE: TemplateName = "chat-react-vite";
-const CHAT_NEXTJS: TemplateName = "chat-nextjs";
-const AGENT_REACT: TemplateName = "agent-react";
+const CHAT_REACT_VITE_TS: TemplateName = "chat-react-vite-ts";
+const CHAT_REACT_VITE_JS: TemplateName = "chat-react-vite-js";
+
+const CHAT_REACT_JS: TemplateName = "chat-react-js";
+const CHAT_REACT_TS: TemplateName = "chat-react-ts";
+
+const CHAT_NEXT_TS: TemplateName = "chat-next-ts";
+const CHAT_NEXT_JS: TemplateName = "chat-next-js";
+
+const AGENT_REACT_TS: TemplateName = "agent-react-ts";
+const AGENT_REACT_JS: TemplateName = "agent-react-js";
 
 const knownTemplates: TemplateName[] = [
-  CHAT_REACT_VITE,
-  CHAT_NEXTJS,
-  AGENT_REACT,
+  CHAT_REACT_VITE_TS,
+  CHAT_REACT_VITE_JS,
+  CHAT_REACT_TS,
+  CHAT_REACT_JS,
+  CHAT_NEXT_TS,
+  CHAT_NEXT_JS,
+  AGENT_REACT_TS,
+  AGENT_REACT_JS,
 ];
 
 export type Template = (typeof knownTemplates)[number];
@@ -32,19 +45,46 @@ const CREATE_CHATBOT = "Create chatbot";
 const CREATE_AGENT = "Create agent";
 
 export const TEMPLATE_DETAILS: Record<Template, TemplateDetails> = {
-  [CHAT_REACT_VITE]: {
+  // Chat templates
+  [CHAT_REACT_VITE_TS]: {
     repositoryUrl:
-      "https://github.com/polyfire-ai/polyfire-chat-react-boilerplate.git",
+      "https://github.com/polyfire-ai/polyfire-chat-react-vite-ts-boilerplate.git",
     envVariablePrefix: "VITE_",
   },
-  [CHAT_NEXTJS]: {
+  [CHAT_REACT_VITE_JS]: {
     repositoryUrl:
-      "https://github.com/polyfire-ai/polyfire-chat-nextjs-boilerplate.git",
+      "https://github.com/polyfire-ai/polyfire-chat-react-vite-js-boilerplate.git",
+    envVariablePrefix: "VITE_",
+  },
+  [CHAT_REACT_TS]: {
+    repositoryUrl:
+      "https://github.com/polyfire-ai/polyfire-chat-react-ts-boilerplate.git",
+    envVariablePrefix: "REACT_APP_",
+  },
+  [CHAT_REACT_JS]: {
+    repositoryUrl:
+      "https://github.com/polyfire-ai/polyfire-chat-react-js-boilerplate.git",
+    envVariablePrefix: "REACT_APP_",
+  },
+  [CHAT_NEXT_TS]: {
+    repositoryUrl:
+      "https://github.com/polyfire-ai/polyfire-chat-next-ts-boilerplate.git",
     envVariablePrefix: "NEXT_PUBLIC_",
   },
-  [AGENT_REACT]: {
+  [CHAT_NEXT_JS]: {
     repositoryUrl:
-      "https://github.com/polyfire-ai/polyfire-use-agent-boilerplate",
+      "https://github.com/polyfire-ai/polyfire-chat-next-js-boilerplate.git",
+    envVariablePrefix: "NEXT_PUBLIC_",
+  },
+  // Agent templates
+  [AGENT_REACT_TS]: {
+    repositoryUrl:
+      "https://github.com/polyfire-ai/polyfire-agent-react-ts-boilerplate.git",
+    envVariablePrefix: "REACT_APP_",
+  },
+  [AGENT_REACT_JS]: {
+    repositoryUrl:
+      "https://github.com/polyfire-ai/polyfire-agent-react-js-boilerplate.git",
     envVariablePrefix: "REACT_APP_",
   },
 };
@@ -82,10 +122,12 @@ const questions = (
 
 async function handleCommand({
   appName,
+  autoStart,
   template,
   ...options
 }: {
   appName: string;
+  autoStart: boolean;
   template?: Template;
   botname?: string;
   project?: string;
@@ -131,14 +173,15 @@ async function handleCommand({
         template as Template,
         appName,
         options,
-        additionalQuestions
+        additionalQuestions,
+        autoStart
       );
       break;
     case "Quit":
       console.info("Bye!");
       return;
     default:
-      console.log("Invalid choice");
+      console.error("Invalid choice");
       break;
   }
 }
@@ -191,8 +234,11 @@ function configureCLI() {
       "--botname <botname>",
       "The name of the bot (only for chat templates)"
     )
+    .option("--auto-start", "Auto start the application after creation")
     .action((appName, options) => {
-      handleCommand({ appName, ...options });
+      const autoStart = options.autoStart || false;
+
+      handleCommand({ appName, autoStart, ...options });
     });
 
   program

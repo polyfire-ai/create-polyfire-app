@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs/promises";
 
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 function addUnderscoreBeforeCapitalLetters(str: string): string {
   return str.replace(/([A-Z])/g, (match, offset) =>
@@ -54,6 +54,67 @@ export function cleanOptions(
   );
 }
 
+async function executeCommandWithRealtimeOutput(
+  command: string
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const [cmd, ...args] = command.split(" ");
+    const child = spawn(cmd, args, {
+      stdio: "inherit",
+      shell: true,
+      env: { ...process.env, FORCE_COLOR: "true" },
+    });
+
+    child.on("exit", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Command exited with code ${code}`));
+      }
+    });
+
+    child.on("error", (error) => {
+      reject(error);
+    });
+  });
+}
+
+export async function executeCommand(
+  command: string,
+  fallbackCommand: string | null = null,
+  messageError = "Error executing command"
+): Promise<void> {
+  try {
+    await executeCommandWithRealtimeOutput(command);
+  } catch (error) {
+    console.error(`${messageError}: ${error}`);
+    if (fallbackCommand) {
+      try {
+        await executeCommandWithRealtimeOutput(fallbackCommand);
+      } catch (fallbackError) {
+        throw new Error(`Error executing fallback command: ${fallbackError}`);
+      }
+    } else {
+      throw error;
+    }
+  }
+}
+
+export async function installProject(
+  appName: string,
+  autoStart?: boolean
+): Promise<void> {
+  let command = `cd ${appName} && npm install`;
+  let fallbackCommand = null;
+
+  if (autoStart) {
+    command += " && npm run dev";
+    fallbackCommand = `cd ${appName} && npm start`;
+  }
+
+  return executeCommand(command, fallbackCommand, "Error installing project");
+}
+
 export async function cloneRepository(
   repoURL: string,
   repo: string
@@ -68,10 +129,9 @@ export async function cloneRepository(
     process.exit(0);
   }
 
-  return new Promise((resolve, reject) => {
-    exec(`git clone ${repoURL} ${repo}`, (error) => {
-      if (error) reject(`Error cloning the repository: ${error}`);
-      resolve();
-    });
-  });
+  return executeCommand(
+    `git clone ${repoURL} ${repo}`,
+    null,
+    "Error cloning repository"
+  );
 }
