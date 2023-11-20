@@ -1,6 +1,6 @@
 {
   "name": "create-polyfire-app",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Set up an AI web app by running one command.",
   "main": "index.ts",
   "bin": {
