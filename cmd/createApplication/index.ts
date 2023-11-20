@@ -30,7 +30,7 @@ export default async function createApplication(
       type: "input",
       name: "project",
       message:
-        "Enter your project alias (obtain one at https://app.polyfire.com) :",
+        "Enter your project alias (obtain one at https://beta.polyfire.com) :",
       when: () => !cliOptions?.project,
     },
   ];
