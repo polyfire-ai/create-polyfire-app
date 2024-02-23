@@ -129,9 +129,22 @@ export async function cloneRepository(
     process.exit(0);
   }
 
-  return executeCommand(
+  async function removeGitDirectory(repo: string): Promise<void> {
+    const gitPath = path.join(repo, ".git");
+    try {
+      await fs.rm(gitPath, { recursive: true, force: true });
+      console.log("Removed .git directory");
+    } catch (error) {
+      console.error("Error removing .git directory:", error);
+      throw error;
+    }
+  }
+
+  await executeCommand(
     `git clone ${repoURL} ${repo}`,
     null,
     "Error cloning repository"
   );
+
+  await removeGitDirectory(repo);
 }
